@@ -49,7 +49,6 @@ void setup(void) {
 
 bool Settings = false;
 bool RandomOnEat = true;
-
 bool StartSettings = false;
 void loop(void) {
 	BUTTON_UP.loop();
@@ -80,14 +79,15 @@ void loop(void) {
   if(StartSettings)
     settingsMenu();
 }
-
+int former = 0;
 void settingsMenu() {
   u8g2.clearBuffer();
   u8g2.drawStr(0, 10, "UP");
   u8g2.drawStr(0, 20, " Points random on eat");
-  u8g2.drawStr(0, 50, "LEFT");
-  u8g2.drawStr(0, 60, " Remove max ball size");
-  u8g2.sendBuffer();
+  u8g2.drawStr(0, 30, "DOWN");
+  // ...
+  u8g2.drawStr(0,50,"LEFT");
+  // ...
   if(BUTTON_UP.isPressed()) {
     digitalWrite(LED_RED, LOW);
     digitalWrite(LED_GREEN, HIGH);
@@ -96,14 +96,46 @@ void settingsMenu() {
     StartSettings = false;
     startedGame = true;
   }
-  if(BUTTON_LEFT.isPressed()) {
-    digitalWrite(LED_RED, LOW);
-    digitalWrite(LED_GREEN, HIGH);
-    MAXincreace = 90000;
-    Settings = false;
-    StartSettings = false;
-    startedGame = true;
+  if(BUTTON_DOWN.isPressed()) {
+    if(MAXincreace == 30)
+      MAXincreace = 90000;
+    else
+      MAXincreace = 30;
+    //digitalWrite(LED_RED, LOW);
+    //digitalWrite(LED_GREEN, HIGH);
+    //Settings = false;
+    //StartSettings = false;
+    //startedGame = true;
   }
+  if(BUTTON_LEFT.isPressed()) {
+    if(former == 0){
+      former++;
+    }
+    //else if(former == 1){
+      //former++;
+    //}
+    //else if(former == 2){
+    //  former++;
+    //}
+    else
+      former = 0;
+  }
+
+  if(MAXincreace == 30)
+    u8g2.drawStr(0,40, " Ball size 30");
+  else
+    u8g2.drawStr(0,40, " Ball size infi");
+  
+  if(former == 0)
+    u8g2.drawStr(0,60, " Format: Circle");
+  else
+    u8g2.drawStr(0,60, " Format: Square");
+  //if(former == 2)
+    //u8g2.drawStr(0,60, " Format: Triangle");
+
+  
+
+  u8g2.sendBuffer();
 }
 
 void ChangePosition() {
@@ -145,10 +177,9 @@ void game() {
     u8g2.drawPixel(randPOSX, randPOSY);
     if(abs(X - randPOSX) <= increace && abs(Y - randPOSY) <= increace){
       change = true;
-      tone(BUZZER, 5 * increace, 500);
+      tone(BUZZER, 10 * increace, 500);
     }
   }
-  
   PlayerMove();
   u8g2.sendBuffer();
 
@@ -161,7 +192,7 @@ void game() {
     u8g2.drawStr(10,30,"Voce perdeu seu");
     u8g2.sendBuffer();
     delay(1000);
-    u8g2.drawStr(10,62,"TEMPO.");
+    u8g2.drawStr(62,60,"TEMPO.");
     u8g2.sendBuffer();
     delay(2000);
     digitalWrite(LED_GREEN, LOW);
@@ -170,7 +201,12 @@ void game() {
   ChangePosition();
 }
 void PlayerMove() {
-  u8g2.drawCircle(X, Y, increace);
+  if(former == 0)
+    u8g2.drawCircle(X, Y, increace);
+  else if(former == 1)
+    u8g2.drawBox(X, Y, increace, increace);
+  //else if(former == 2)
+    //u8g2.drawTriangle(X, Y, increace, increace, increace, increace);
 }
 void setonLineChange(uint8_t x, uint8_t y, const char* cwer) {
 	u8g2.clearBuffer();

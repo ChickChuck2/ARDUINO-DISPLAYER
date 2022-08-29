@@ -48,7 +48,6 @@ void setup(void) {
 }
 
 bool Settings = false;
-bool RandomOnLoad = false;
 bool RandomOnEat = true;
 
 bool StartSettings = false;
@@ -86,8 +85,6 @@ void settingsMenu() {
   u8g2.clearBuffer();
   u8g2.drawStr(0, 10, "UP");
   u8g2.drawStr(0, 20, " Points random on eat");
-  u8g2.drawStr(0, 30, "DOWN");
-  u8g2.drawStr(0, 40, " Points Created on Start game");
   u8g2.drawStr(0, 50, "LEFT");
   u8g2.drawStr(0, 60, " Remove max ball size");
   u8g2.sendBuffer();
@@ -95,15 +92,6 @@ void settingsMenu() {
     digitalWrite(LED_RED, LOW);
     digitalWrite(LED_GREEN, HIGH);
     RandomOnEat = true;
-    Settings = false;
-    StartSettings = false;
-    startedGame = true;
-  }
-  if(BUTTON_DOWN.isPressed()) {
-    digitalWrite(LED_RED, LOW);
-    digitalWrite(LED_GREEN, HIGH);
-    RandomOnLoad = true;
-    RandomOnEat = false;
     Settings = false;
     StartSettings = false;
     startedGame = true;
@@ -139,14 +127,10 @@ void VerifyBorder() {
     Y++;
 }
 
-int randX[10];
-int randY[10];
 void RandomBallPOS() {
   randPOSX = random(10,114);
   randPOSY = random(10,54);
 }
-int pointsCount = 0;
-int eated = 0;
 void game() {
   VerifyBorder();
   u8g2.clearBuffer();
@@ -156,31 +140,12 @@ void game() {
     increace++;
     change = false;
   }
-  else if(RandomOnLoad && pointsCount <= 10){
-    for(int i = 0; i <= 10; i++){
-      randX[i] = random(10,114);
-      randY[i] = random(10,54);
-    }
-  }
-  for(int i = eated; i <= 10; i++)
-    u8g2.drawPixel(randX[i], randY[i]);
 
   if(RandomOnEat){
     u8g2.drawPixel(randPOSX, randPOSY);
-    if(abs(X - randPOSX) <= increace){
+    if(abs(X - randPOSX) <= increace && abs(Y - randPOSY) <= increace){
       change = true;
       tone(BUZZER, 5 * increace, 500);
-    }
-  }
-  else{
-    for(int i = eated; i <= 10; i++){
-      if(abs(X - randX[i]) <= increace && abs(Y - randY[i] <= increace)) {
-        tone(BUZZER, 5 * increace, 500);
-        randX[i] = 0;
-        randY[i] = 0;
-        eated++;
-        increace++;
-      }
     }
   }
   
@@ -190,10 +155,15 @@ void game() {
   if(increace >= MAXincreace){
     startedGame = false;
     u8g2.clearBuffer();
-    u8g2.drawStr(10, 10, "Voce acaba de zerar");
-    u8g2.drawStr(10,20,"o melhor jogo");
-    u8g2.drawStr(20,30,"Do mundo");
+    u8g2.drawStr(10, 10, "parabens");
     u8g2.sendBuffer();
+    delay(1000);
+    u8g2.drawStr(10,30,"Voce perdeu seu");
+    u8g2.sendBuffer();
+    delay(1000);
+    u8g2.drawStr(10,62,"TEMPO.");
+    u8g2.sendBuffer();
+    delay(2000);
     digitalWrite(LED_GREEN, LOW);
     digitalWrite(LED_RED, HIGH);
   }
